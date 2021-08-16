@@ -23,5 +23,5 @@ get_map_tail.pl: combined analysis of polyA tails identified by cutadapt and bla
 
 FLAM-seq.Rmd: clustering of reads into isoforms by polyA tails
 
-## DOI
-https://zenodo.org/badge/DOI/10.5281/zenodo.5206822.svg
+![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5206822.svg?raw=true)
+
