@@ -17,3 +17,6 @@ venn.R: venn diagram analysis of alleleic reads
 cutadapt-blat.sh: adapter trimming, polyA tail identification using cutadpat and blat
 get_map_tail.pl: combined analysis of polyA tails identified by cutadapt and blat
 FLAM-seq.Rmd: clustering of reads into isoforms by polyA tails
+
+## DOI
+https://zenodo.org/badge/DOI/10.5281/zenodo.5206822.svg
