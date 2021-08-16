@@ -5,7 +5,7 @@ María Landínez-Macías, Weihong Qi, Anna Bratus-Neuenschwander, Martin Mülle
 and Olivier Urwyler
 
 ## Reference sequences
-*.fasta
+*.fasta and *.fasta.zip
 
 ## RNA editing analysis
 input.txt: input configuration for minimap2_lofreq.sh
