@@ -1,0 +1,15 @@
+Ptp69D3_UTR.fasta bc1001.fastq.gz 1 
+Ptp69D3_UTR.fasta bc1002.fastq.gz 2 
+SV40UTR.fasta bc1003.fastq.gz 3 
+SV40UTR.fasta bc1008.fastq.gz 4 
+Ptp69D_mcherry.fasta bc1009.fastq.gz 5 
+Ptp69D_mcherry.fasta bc1010.fastq.gz 6 
+Dscam_RCD.fasta bc1011.fastq.gz 7 
+Dscam_RCD.fasta bc1012.fastq.gz 8 
+Elav_RD.fasta bc1015.fastq.gz 9
+Elav_RD.fasta bc1016.fastq.gz 10
+Dscam_RCD.fasta bc1017.fastq.gz 11
+Dscam_RCD.fasta bc1018.fastq.gz 12
+Elav_RD.fasta bc1019.fastq.gz 13
+Elav_RD.fasta bc1020.fastq.gz 14
+pUASattB_Ptp69D_mcherry_template_sequence.fasta ccs.0066_Forward--0066_Forward.0066_Forward--0066_Forward.fastq aln.66	

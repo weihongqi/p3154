@@ -1,0 +1,202 @@
+---
+title: "p3154_o6676 FLAMSeq Summary Report"
+author: "Weihong Qi"
+date: "23/03/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+## p3154_o6676 FLAMseq {.tabset}
+
+```{r results='hide', message=FALSE, warning=FALSE}
+library(ggplot2)
+library(knitr)
+require(plyr)
+library( tidyr)
+library(splus2R)
+library(grid)
+library(gridExtra)
+```
+
+### Isoform tail length distributions
+
+#### Isoform grouping and tail length distibution in the top 15 genes
+
+```{r master}
+files<-list.files(path="/srv/gstore/projects/p3154/o6676_FLAMseq_20200323/03_maptail/", pattern = ".final_tails.txt$", recursive = TRUE, full.names=TRUE)
+site<- data.frame()
+for (f in files){
+  sample<-basename(f)
+  sample<-gsub(".final_tails.txt", "", sample)
+  name_str<-strsplit(sample, "_")
+  df<-read.table(f, header=TRUE, fill=TRUE, sep="\t", stringsAsFactors = FALSE)
+  df$Name<-rep(name_str[[1]][1], dim(df)[1])
+  site <- rbind(site, df)
+}
+site<-subset(site, len_tail>0)
+write.table(site, file = "p3154_o6676_FLAMSeq_master_table.txt",quote = FALSE, sep = "\t",row.names = FALSE,col.names = TRUE)
+genes<-as.data.frame(table(site$gene))
+genes<-genes[order(-genes$Freq), ]
+dl<-split(site, site$gene)
+```
+
+```{r isoform}
+for (i in c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)){
+  df<-as.data.frame(dl[names(dl)==genes[i,1]])
+  #den<-density(df[, 3])
+  #plot(den, xlab="start site", main=names(dl[names(dl)==genes[i,1]]))
+  h<-hist(df[, 3], breaks = seq (min(df[, 3])-13, max(df[, 3])+13, 1), xlab="start site", main=names(dl[names(dl)==genes[i,1]]))
+  ps<-as.data.frame(table(df[, 3]))
+  colnames(ps)<-c("site", "count")
+  x<-peaks(h$counts, span=25, strict=TRUE)
+  l<-length(h$breaks[x])-1
+  iso<-data.frame()
+  if(l==0){
+    d1<-12
+    d2<-12
+    iso[1, 1]<-h$breaks[x][1]-d1
+    iso[1, 2]<-h$breaks[x][1]
+    iso[1, 3]<-h$breaks[x][1]+d2
+  }else if(l==1){
+    d1<-12
+    if((h$breaks[x][2]-h$breaks[x][1])>=24){
+      d2<-12
+      iso[1, 1]<-h$breaks[x][1]-d1
+      iso[1, 2]<-h$breaks[x][1]
+      iso[1, 3]<-h$breaks[x][1]+d2
+      iso[2, 1]<-h$breaks[x][2]-d2
+      iso[2, 2]<-h$breaks[x][2]
+      iso[2, 3]<-h$breaks[x][2]+d1
+    }else{
+      num<-h$breaks[x][2]-h$breaks[x][1]
+      if((num %% 2) == 0) {
+        d2<-floor(num/2-1)
+        iso[1, 1]<-h$breaks[x][1]-d1
+        iso[1, 2]<-h$breaks[x][1]
+        iso[1, 3]<-h$breaks[x][1]+d2
+        iso[2, 1]<-h$breaks[x][2]-d2-1
+        iso[2, 2]<-h$breaks[x][2]
+        iso[2, 3]<-h$breaks[x][2]+d1
+      } else {
+        d2<-floor(num/2)
+        iso[1, 1]<-h$breaks[x][1]-d1
+        iso[1, 2]<-h$breaks[x][1]
+        iso[1, 3]<-h$breaks[x][1]+d2
+        iso[2, 1]<-h$breaks[x][2]-d2
+        iso[2, 2]<-h$breaks[x][2]
+        iso[2, 3]<-h$breaks[x][2]+d1
+      }
+    }
+  }else{
+    d1<-12
+    if((h$breaks[x][2]-h$breaks[x][1])>=24){
+        d2<-12
+    }else{
+      num<-h$breaks[x][2]-h$breaks[x][1]
+      if((num %% 2) == 0) {
+        d2<-floor(num/2-1)
+      } else {
+        d2<-floor(num/2)
+      }  
+    }
+    iso[1, 1]<-h$breaks[x][1]-d1
+    iso[1, 2]<-h$breaks[x][1]
+    iso[1, 3]<-h$breaks[x][1]+d2
+    for (k in 2:l){
+      if((h$breaks[x][k]-h$breaks[x][k-1])>=24){
+        d1<-12
+      }else{
+        d1<-floor((h$breaks[x][k]-h$breaks[x][k-1])/2)
+      }
+      if((h$breaks[x][k+1]-h$breaks[x][k])>=24){
+        d2<-12
+      }else{
+        num<-h$breaks[x][k+1]-h$breaks[x][k]
+        if((num %% 2) == 0) {
+          d2<-floor(num/2-1)
+        } else {
+          d2<-floor(num/2)
+        }
+      }
+      iso[k, 1]<-h$breaks[x][k]-d1
+      iso[k, 2]<-h$breaks[x][k]
+      iso[k, 3]<-h$breaks[x][k]+d2
+    }
+    if((num %% 2) == 0) {
+      iso[l+1, 1]<-h$breaks[x][l+1]-d2-1
+    }else{
+       iso[l+1, 1]<-h$breaks[x][l+1]-d2
+    }
+    iso[l+1, 2]<-h$breaks[x][l+1]
+    iso[l+1, 3]<-h$breaks[x][l+1]+12
+  }
+  for (j in 1:dim(iso)[1]){
+     iso[j, 4]<-dim(subset(df, df[,3]>=iso[j, 1] & df[,3]<=iso[j, 3]))[1]
+  }
+  colnames(iso)<-c("start", "p", "end", "count")
+  iso<-subset(iso, count>=50)
+  print(kable(iso, caption=paste0("Identified isoform peaks (total read counts from all samples >=50) in ", names(dl[names(dl)==genes[i,1]]))))
+  #ps<-ps[order(-ps$site), ]
+  #ps <- ps[ which( ps$count > 50),]
+  #print(kable(ps, caption=paste0("Position and height of all sites in", names(dl[names(dl)==genes[i,1]]))))
+  cat("\n")
+  for (j in 1:dim(iso)[1]){
+    trs<-subset(df, df[,3]>=iso[j, 1] & df[,3]<=iso[j, 3])
+    colnames(trs)<-c("read","gene","site","seq_tail","len_tail","Name")
+    if( names(dl[names(dl)==genes[i,1]]) == "FBgn0014007"){
+      exp<-subset(trs, Name == "bc1015" | Name == "bc1016")
+      ben<-subset(trs, Name == "bc1017" | Name == "bc1018" | Name == "bc1019")
+      if(!empty(exp)){
+        p1<-ggplot(exp, aes(Name, len_tail)) + geom_violin(aes(fill = Name)) + theme(axis.text.x = element_text(angle = 90)) + ggtitle(paste0("Tail length distribution in ", names(dl[names(dl)==genes[i,1]]), " isoform ", iso[j, 1], " - ", iso[j, 3]))
+        print(p1)
+      }
+      if(!empty(ben) & length(ben$len_tail) > 3){
+        p2<-ggplot(ben, aes(Name, len_tail)) + geom_violin(aes(fill = Name)) + theme(axis.text.x = element_text(angle = 90)) + ggtitle(paste0("Tail length distribution in ", names(dl[names(dl)==genes[i,1]]), " isoform ", iso[j, 1], " - ", iso[j, 3], ", benchmark"))
+        print(p2)
+      }
+    }else{
+      p<-ggplot(trs, aes(Name, len_tail)) + geom_violin(aes(fill = Name)) + theme(axis.text.x = element_text(angle = 90)) + ggtitle(paste0("Tail length distribution in gene ", names(dl[names(dl)==genes[i,1]]), " isoform ", iso[j, 1], " - ", iso[j, 3]))
+      print(p)
+    }
+  }
+}
+```
+
+
+### Data and methods
+
++ 1 [Raw reads](https://fgcz-gstore.uzh.ch/projects/p3154/PacBioSequel_r54073_20200220_161230_o6676/)
+
++ 2 [De-multiplexed CCS reeads](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq/dmx_ccs_default/)
+
++ 3 [Adaptor trimmed reads](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/01_cutadapt/)
+  + 3 prime adaptor "CAGCTGTAGCTATGCGCA" were trimmed from reads using cutadapt (2.9). Both the read and its reverse complement were searched for the adaptor sequence. At least 9 bases match between the adapter and read was required. Reads without a matched adaptor were excluded from downstream analysis. 
+
++ 4 [Reads where polyA tails were identified de novo and trimmed ](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/02_cuttail/)
+  + Adaptor trimmed reads were further trimmed of polyA tails using cutadapt (2.9) with a stringent maximum error rate of 0.01 (default 0.1). Both trimmed and untrimmed reads were kept for downstream analysis. 
+
++ 5 [Reads where polyA tails were refined by mapping](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/)
+  + Adaptor and/or polyA tail trimmed reads were mapped to [dmel_r6.32_FB2020_01](ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.32_FB2020_01/fasta/) gene sequences using the split aligner blat (v. 36x1). For each read, the best and unique alignment was kept. 
+  + In this best and unique alignment, if a read had an unaligned tail on the 3 prim end, the tail was checked for the possibility of being part of the polyA tail. 
+    + If the tail had 90% and above of A bases (or if the tail was longer than 3 nt but short than 10 nt, with only 1 none-A base), it was classified as part of the polyA tail and combined with the polyA tail identified by cutadapt.
+    + Otherwise the read was dropped from the analysis.  
+  + 5.1 Lists of read, mapped gene, polyA start site, refined polyA tail sequence and length
+    + [bc1015](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1015_BAK8B_OA--bc1015_BAK8B_OA.final_tails.txt)
+    + [bc1016](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1016_BAK8B_OA--bc1016_BAK8B_OA.final_tails.txt)
+    + [bc1017](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1017_BAK8B_OA--bc1017_BAK8B_OA.final_tails.txt)
+    + [bc1018](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1018_BAK8B_OA--bc1018_BAK8B_OA.final_tails.txt)
+    + [bc1019](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1019_BAK8B_OA--bc1019_BAK8B_OA.final_tails.txt)
+  + 5.2 Lists of reads that were dropped because the sequences uopstream of polyA tail did not mapped to the gene
+    + [bc1015](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1015_BAK8B_OA--bc1015_BAK8B_OA.dropped_tails.txt)
+    + [bc1016](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1016_BAK8B_OA--bc1016_BAK8B_OA.dropped_tails.txt)
+    + [bc1017](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1017_BAK8B_OA--bc1017_BAK8B_OA.dropped_tails.txt)
+    + [bc1018](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1018_BAK8B_OA--bc1018_BAK8B_OA.dropped_tails.txt)
+    + [bc1019](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/03_maptail/bc1019_BAK8B_OA--bc1019_BAK8B_OA.dropped_tails.txt)
+   
++ 6 Grouping of isoforms by ployA tail start sites
+  + For each gene, local maximas in the histogram of ployA tail start sites were first identified using R function "peaks". A peak was defined as an element in the histogram which is greater than all other elements within a window of width span (25) centered at that element, meaning that a peak is the highest within a window of +/- 12 bases. After all peaks were identified, each peak span was adjusted by distance to neighboring peaks (12 bases, or half of the distance to neighboring peaks, which ever was smaller). Refined peak spans were then used to group reads into isoforms. Isoforms with at least 50 reads from all samples were kept and analyzed. 
+  
++ 7 [Master input data for reporting](https://fgcz-gstore.uzh.ch/projects/p3154/o6676_FLAMseq_20200323/p3154_o6676_FLAMSeq_master_table.txt)
