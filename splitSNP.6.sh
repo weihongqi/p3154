@@ -1,3 +1,5 @@
+#https://github.com/astatham/splitSNP/blob/master/splitSNP.py
+
 /usr/local/ngseq/src/splitSNP/splitSNP.py 6.sorted.bam A128 pUASattB_Ptp69D_mcherry:10782:A:G
 /usr/local/ngseq/src/splitSNP/splitSNP.py 6.sorted.bam A129 pUASattB_Ptp69D_mcherry:10783:A:G
 /usr/local/ngseq/src/splitSNP/splitSNP.py 6.sorted.bam A297 pUASattB_Ptp69D_mcherry:10951:A:G
