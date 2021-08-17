@@ -7,7 +7,7 @@ and Olivier Urwyler
 ## Reference sequences
 *.fasta
 
-## RNA editing analysis
+## RNA editing analysis of PacBio CCS reads
 input.txt: input configuration for minimap2_lofreq.sh
 
 minimap2_lofreq.sh: align reads and variant calling
@@ -16,7 +16,7 @@ splitSNP.*.sh: split reads by variants in various input bam files
 
 venn.R: venn diagram analysis of alleleic reads 
 
-## FLAM-seq analysis
+## FLAM-seq analysis pf PacBio CCS reads
 cutadapt-blat.sh: adapter trimming, polyA tail identification using cutadpat and blat
 
 get_map_tail.pl: combined analysis of polyA tails identified by cutadapt and blat
